@@ -3,10 +3,7 @@
 import io
 import sys
 
-try:
-    import yaml as json
-except ImportError:  # not tested
-    import json
+import yaml
 
 try:
     from .renderer import render
@@ -20,7 +17,7 @@ def main(template, data={}, **kwargs):
     with io.open(template, 'r', encoding='utf-8') as template_file:
         if data != {}:
             data_file = io.open(data, 'r', encoding='utf-8')
-            data = json.load(data_file)
+            data = yaml.load(data_file, Loader=yaml.SafeLoader)
             data_file.close()
 
         args = {
