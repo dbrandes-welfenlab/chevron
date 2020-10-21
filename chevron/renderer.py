@@ -47,7 +47,7 @@ def _html_escape(string):
     return string
 
 
-def _get_key(key, scopes):
+def _get_key(key, scopes, empty_ok = False):
     """Get a key from the current scope"""
 
     # If the key is a dot
@@ -55,46 +55,46 @@ def _get_key(key, scopes):
         # Then just return the current scope
         return scopes[0]
 
-    # Loop through the scopes
-    for scope in scopes:
-        try:
-            # For every dot seperated key
-            for child in key.split('.'):
-                # Move into the scope
-                try:
-                    # Try subscripting (Normal dictionaries)
-                    scope = scope[child]
-                except (TypeError, AttributeError):
-                    try:
-                        # Try the dictionary (Complex types)
-                        scope = scope.__dict__[child]
-                    except (TypeError, AttributeError):
-                        # Try as a list
-                        scope = scope[int(child)]
-
-            # Return an empty string if falsy, with two exceptions
-            # 0 should return 0, and False should return False
-            # While using is for this check is undefined it works and is fast
-            if scope is 0:  # noqa: F632
-                return 0
-            if scope is False:
-                return False
-
+    # Use only actl scope:
+    scope = scopes[0]
+    try:
+        # For every dot seperated key
+        for child in key.split('.'):
+            # Move into the scope
             try:
-                # This allows for custom falsy data types
-                # https://github.com/noahmorrison/chevron/issues/35
-                if scope._CHEVRON_return_scope_when_falsy:
-                    return scope
-            except AttributeError:
-                return scope or ''
-        except (AttributeError, KeyError, IndexError, ValueError):
-            # We couldn't find the key in the current scope
-            # We'll try again on the next pass
-            pass
+                # Try subscripting (Normal dictionaries)
+                scope = scope[child]
+            except (TypeError, AttributeError):
+                try:
+                    # Try the dictionary (Complex types)
+                    scope = scope.__dict__[child]
+                except (TypeError, AttributeError):
+                    # Try as a list
+                    scope = scope[int(child)]
 
-    # We couldn't find the key in any of the scopes
-    return ''
+        # Return an empty string if falsy, with two exceptions
+        # 0 should return 0, and False should return False
+        # While using is for this check is undefined it works and is fast
+        if scope is 0:  # noqa: F632
+            return 0
+        if scope is False:
+            return False
 
+        try:
+            # This allows for custom falsy data types
+            # https://github.com/noahmorrison/chevron/issues/35
+            if scope._CHEVRON_return_scope_when_falsy:
+                return scope
+        except AttributeError:
+            return scope or ''
+    except (AttributeError, KeyError, IndexError, ValueError):
+        # We couldn't find the key in the current scope
+        if (empty_ok):
+            return ''
+        else:
+            # We couldn't find the key in any of the scopes
+            print("key " + key + " not found!")
+            raise KeyError()
 
 def _get_partial(name, partials_dict, partials_path, partials_ext):
     """Load a partial"""
@@ -103,16 +103,12 @@ def _get_partial(name, partials_dict, partials_path, partials_ext):
         return partials_dict[name]
     except KeyError:
         # Nope...
-        try:
-            # Maybe it's in the file system
-            path_ext = ('.' + partials_ext if partials_ext else '')
-            path = partials_path + '/' + name + path_ext
-            with io.open(path, 'r', encoding='utf-8') as partial:
-                return partial.read()
 
-        except IOError:
-            # Alright I give up on you
-            return ''
+        # Maybe it's in the file system
+        path_ext = ('.' + partials_ext if partials_ext else '')
+        path = partials_path + '/' + name + path_ext
+        with io.open(path, 'r', encoding='utf-8') as partial:
+            return partial.read()
 
 
 #
@@ -226,7 +222,8 @@ def render(template='', data={}, partials_path='.', partials_ext='mustache',
                 thing = scopes[1]
             if not isinstance(thing, unicode_type):
                 thing = unicode(str(thing), 'utf-8')
-            output += _html_escape(thing)
+            # default to no escape.
+            output += thing
 
         # If we're a no html escape tag
         elif tag == 'no escape':
@@ -239,7 +236,7 @@ def render(template='', data={}, partials_path='.', partials_ext='mustache',
         # If we're a section tag
         elif tag == 'section':
             # Get the sections scope
-            scope = _get_key(key, scopes)
+            scope = _get_key(key, scopes, True)
 
             # If the scope is a callable (as described in
             # https://mustache.github.io/mustache.5.html)
@@ -328,7 +325,7 @@ def render(template='', data={}, partials_path='.', partials_ext='mustache',
         # If we're an inverted section
         elif tag == 'inverted section':
             # Add the flipped scope to the scopes
-            scope = _get_key(key, scopes)
+            scope = _get_key(key, scopes, True)
             scopes.insert(0, not scope)
 
         # If we're a partial

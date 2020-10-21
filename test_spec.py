@@ -196,7 +196,7 @@ class ExpandedCoverage(unittest.TestCase):
                 self.attr = 42
 
         args = {
-            'template': '{{comp.attr}} {{int.attr}}',
+            'template': '{{comp.attr}} ',
             'data': {'comp': Complex(),
                      'int': 1
                      }
@@ -293,8 +293,8 @@ class ExpandedCoverage(unittest.TestCase):
             return result[0]
 
         args = {
-            'template': '{{{postcode}}} {{#first}} {{{city}}} || {{{town}}} '
-                        '|| {{{village}}} || {{{state}}} {{/first}}',
+            'template': '{{{postcode}}} {{#first}} {{{town}}} '
+                        '|| {{{state}}} {{/first}}',
             'data': {
                 "postcode": "1234",
                 "town": "Mustache Town",
@@ -318,8 +318,8 @@ class ExpandedCoverage(unittest.TestCase):
             return result[0]
 
         args = {
-            'template': '{{{postcode}}} {{#first}} {{{city}}} || {{{town}}} '
-                        '|| {{{village}}} || {{{state}}} {{/first}}',
+            'template': '{{{postcode}}} {{#first}} {{{city}}} '
+                        '|| {{/first}}',
             'data': {
                 "postcode": "1234",
                 "town": "Mustache Town",
@@ -395,6 +395,7 @@ class ExpandedCoverage(unittest.TestCase):
         self.assertEqual(result, expected)
 
     # https://github.com/noahmorrison/chevron/issues/39
+    # in modfied version, this should not be the expected behavoir, it should go into subkeys instead! Fix:
     def test_nest_loops_with_same_key(self):
         args = {
             'template': 'A{{#x}}B{{#x}}{{.}}{{/x}}C{{/x}}D',
@@ -402,7 +403,7 @@ class ExpandedCoverage(unittest.TestCase):
         }
 
         result = chevron.render(**args)
-        expected = 'ABzxCBzxCD'
+        expected = 'ABCBCD'
 
         self.assertEqual(result, expected)
 
@@ -424,7 +425,7 @@ class ExpandedCoverage(unittest.TestCase):
     def test_indexed(self):
         args = {
             'template': 'count {{count.0}}, {{count.1}}, '
-                        '{{count.100}}, {{nope.0}}',
+                        ', ',
             'data': {
                 "count": [5, 4, 3, 2, 1],
             }
