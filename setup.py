@@ -11,11 +11,11 @@ except ImportError:
 with open('README.md') as f:
     readme = f.read()
 
-setup(name='chevron',
+setup(name='chevron_strict',
       version=chevron.metadata.version,
       license='MIT',
 
-      description='Mustache templating language renderer',
+      description='Modified Mustache templating language renderer',
       long_description=readme,
       long_description_content_type='text/markdown',
 

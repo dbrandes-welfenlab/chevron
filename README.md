@@ -1,6 +1,18 @@
-[![PyPI version](https://badge.fury.io/py/chevron.svg)](https://badge.fury.io/py/chevron)
-[![Build Status](https://travis-ci.org/noahmorrison/chevron.svg?branch=master)](https://travis-ci.org/noahmorrison/chevron)
-[![Coverage Status](https://coveralls.io/repos/github/noahmorrison/chevron/badge.svg?branch=master)](https://coveralls.io/github/noahmorrison/chevron?branch=master)
+Modifications of this Fork
+--------------------------
+
+This is a modfied version of Mustache, `chevron_strict`. The following changes are made
+
+- force error if key not found and template is no {{#...}} or {{^...}}
+- do not look in scopes over actl. scope to find variables
+- force error if partial is not found
+- default do no html escaping!
+- fixes internal tests
+- changed to forked version of specs that are compatible with changes above.
+
+
+Original Readme
+---------------
 
 A python implementation of the [mustache templating language](http://mustache.github.io).
 
