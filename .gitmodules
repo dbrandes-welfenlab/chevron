@@ -1,4 +1,4 @@
 
 [submodule "spec"]
 	path = spec
-	url = https://github.com/DanielBrandes-FlyNow/spec.git
+	url = https://github.com/FlyNow-Aviation/spec.git
