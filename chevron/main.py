@@ -40,11 +40,11 @@ def cli_main():
         else:
             return arg
 
-    def is_dir(arg):
-        if not os.path.isdir(arg):
-            parser.error('The directory {0} does not exist!'.format(arg))
-        else:
-            return arg
+    def is_dir_list(arg):
+        for d in arg:
+            if not os.path.isdir(d):
+                parser.error('The directory {0} does not exist!'.format(d))
+        return arg
 
     parser = argparse.ArgumentParser(description=__doc__)
 
@@ -60,7 +60,7 @@ def cli_main():
 
     parser.add_argument('-p', '--paths', dest='partials_paths',nargs='*',
                         help='The directories where your partials reside',
-                        type=is_dir, default='.')
+                        type=is_dir_list, default=['.'])
 
     parser.add_argument('-e', '--ext', dest='partials_ext',
                         help='The extension for your mustache\
