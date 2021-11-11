@@ -47,7 +47,7 @@ USAGE
 
 Commandline usage: (if installed via pypi)
 ```
-usage: chevron [-h] [-v] [-d DATA] [-p PARTIALS_PATH] [-e PARTIALS_EXT]
+usage: chevron [-h] [-v] [-d DATA] [-p PARTIALS_PATHS] [-e PARTIALS_EXT]
                [-l DEF_LDEL] [-r DEF_RDEL]
                template
 
@@ -58,8 +58,8 @@ optional arguments:
   -h, --help            show this help message and exit
   -v, --version         show program's version number and exit
   -d DATA, --data DATA  The json data file
-  -p PARTIALS_PATH, --path PARTIALS_PATH
-                        The directory where your partials reside
+  -p PARTIALS_PATHS, --paths PARTIALS_PATHS
+                        The directories where your partials reside
   -e PARTIALS_EXT, --ext PARTIALS_EXT
                         The extension for your mustache partials, 'mustache'
                         by default
@@ -122,7 +122,7 @@ args = {
     'template': 'Hello, {{> thing }}!',
 
     # defaults to .
-    'partials_path': 'partials/',
+    'partials_paths': ['partials/'],
 
     # defaults to mustache
     'partials_ext': 'ms',

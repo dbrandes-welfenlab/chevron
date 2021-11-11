@@ -143,7 +143,7 @@ class ExpandedCoverage(unittest.TestCase):
 
     def test_main(self):
         result = chevron.main('tests/test.mustache', 'tests/data.json',
-                              partials_path='tests')
+                              partials_paths=['tests'])
 
         with io.open('tests/test.rendered', 'r', encoding='utf-8') as f:
             expected = f.read()

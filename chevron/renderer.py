@@ -96,7 +96,7 @@ def _get_key(key, scopes, empty_ok = False):
             print("key " + key + " not found!")
             raise KeyError()
 
-def _get_partial(name, partials_dict, partials_path, partials_ext):
+def _get_partial(name, partials_dict, partials_paths, partials_ext):
     """Load a partial"""
     try:
         # Maybe the partial is in the dictionary
@@ -105,10 +105,18 @@ def _get_partial(name, partials_dict, partials_path, partials_ext):
         # Nope...
 
         # Maybe it's in the file system
-        path_ext = ('.' + partials_ext if partials_ext else '')
-        path = partials_path + '/' + name + path_ext
-        with io.open(path, 'r', encoding='utf-8') as partial:
-            return partial.read()
+        for i in range(len(partials_paths)):
+            partials_path = partials_paths[i]
+            try:
+                path_ext = ('.' + partials_ext if partials_ext else '')
+                path = partials_path + '/' + name + path_ext
+                with io.open(path, 'r', encoding='utf-8') as partial:
+                    return partial.read()
+            except FileNotFoundError:
+                #pass assertion through if this is the last one.
+                if i + 1 == len(partials_paths):
+                    raise FileNotFoundError
+                    
 
 
 #
@@ -117,7 +125,7 @@ def _get_partial(name, partials_dict, partials_path, partials_ext):
 g_token_cache = {}
 
 
-def render(template='', data={}, partials_path='.', partials_ext='mustache',
+def render(template='', data={}, partials_paths=['.'], partials_ext='mustache',
            partials_dict={}, padding='', def_ldel='{{', def_rdel='}}',
            scopes=None):
     """Render a mustache template.
@@ -141,8 +149,8 @@ def render(template='', data={}, partials_path='.', partials_ext='mustache',
 
     data          -- A python dictionary with your data scope
 
-    partials_path -- The path to where your partials are stored
-                     (defaults to '.')
+    partials_paths -- The paths to where your partials are stored
+                     (defaults to ['.'])
 
     partials_ext  -- The extension that you want the parser to look for
                      (defaults to 'mustache')
@@ -271,7 +279,7 @@ def render(template='', data={}, partials_path='.', partials_ext='mustache',
 
                 rend = scope(text, lambda template, data=None: render(template,
                              data={},
-                             partials_path=partials_path,
+                             partials_paths=partials_paths,
                              partials_ext=partials_ext,
                              partials_dict=partials_dict,
                              padding=padding,
@@ -308,7 +316,7 @@ def render(template='', data={}, partials_path='.', partials_ext='mustache',
                     # Append it as the most recent scope and render
                     new_scope = [thing] + scopes
                     rend = render(template=tags, scopes=new_scope,
-                                  partials_path=partials_path,
+                                  partials_paths=partials_paths,
                                   partials_ext=partials_ext,
                                   partials_dict=partials_dict,
                                   def_ldel=def_ldel, def_rdel=def_rdel)
@@ -332,7 +340,7 @@ def render(template='', data={}, partials_path='.', partials_ext='mustache',
         elif tag == 'partial':
             # Load the partial
             partial = _get_partial(key, partials_dict,
-                                   partials_path, partials_ext)
+                                   partials_paths, partials_ext)
 
             # Find what to pad the partial with
             left = output.split('\n')[-1]
@@ -341,7 +349,7 @@ def render(template='', data={}, partials_path='.', partials_ext='mustache',
                 part_padding += left
 
             # Render the partial
-            part_out = render(template=partial, partials_path=partials_path,
+            part_out = render(template=partial, partials_paths=partials_paths,
                               partials_ext=partials_ext,
                               partials_dict=partials_dict,
                               def_ldel=def_ldel, def_rdel=def_rdel,

@@ -58,8 +58,8 @@ def cli_main():
                         help='The json data file',
                         type=is_file_or_pipe, default={})
 
-    parser.add_argument('-p', '--path', dest='partials_path',
-                        help='The directory where your partials reside',
+    parser.add_argument('-p', '--paths', dest='partials_paths',nargs='*',
+                        help='The directories where your partials reside',
                         type=is_dir, default='.')
 
     parser.add_argument('-e', '--ext', dest='partials_ext',
