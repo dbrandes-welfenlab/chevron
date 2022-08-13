@@ -24,6 +24,7 @@ setup(name='chevron_strict',
       url='https://github.com/noahmorrison/chevron',
 
       packages=['chevron'],
+      install_requires=['pyyaml'],
       entry_points={
           'console_scripts': ['chevron=chevron:cli_main']
       },
